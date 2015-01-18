@@ -1,0 +1,27 @@
+  function deleteadmin(objd)
+{
+	var id=objd.name;
+
+	$.post('admindelete.php',{hiddenid:id},
+		function(data)
+		{
+			$('#annotationpanel'+id).html(""+data);
+			
+		});
+	
+}
+function revertadmin(objr)
+{
+	var id=objr.name;//getting the id of the annotation
+	 //getting the edited value for updating the databse
+	 
+	 $.post('adminrevert.php',{hiddenid:id},
+		function(data)
+		{
+			$('#annotationpanel'+id).html(""+data);
+			//displaying the reverted annotation in the anntation panel
+			//data has the value current anno(  echo $current_anno; which was in adminrevert.php) 
+			
+		});
+	
+}

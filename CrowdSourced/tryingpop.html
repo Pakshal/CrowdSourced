@@ -1,0 +1,32 @@
+<!-- popup for adding the annotation-->
+<div id="light1" class="w_content">Enter your annotation in the textarea below:<br>
+<form name="annotation">
+
+	<!-- for selecting the annotation category -->
+	<select id="type">
+  		<option value="">Please select the type</option>
+  		<option value="[Q]">Question</option>
+  		<option value="[P]">Pointer</option>
+  		<option value="[I]">Insight</option>
+    	<option value="[C]">Caution</option>
+  
+	</select> 
+
+
+    <textarea name="annotationvalue" id="erase" rows="10" cols="50" placeholder="Enter Annotation Here"></textarea>
+    <br><input type="button" name="annotate" value="submit" onclick="call()"> <!-- call function is in base_annotatot.js -->
+
+    <input type="button" value="cancel" onclick="hidepopup()">
+    <!--<a href = "javascript:void(0)" onclick = "fooo()">Close</a>-->
+
+</form>      
+<script></script>
+</div>
+                    
+<div id="fade1" class="b_overlay"></div> <!-- this is for fading the background when pop-up appears
+	also tryingpop.html is being included in main.php -->
+  
+
+
+            
+                    

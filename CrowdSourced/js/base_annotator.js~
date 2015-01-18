@@ -1,0 +1,259 @@
+var annotat;
+var selc;
+var add_annotation_buttonid="0";
+
+
+//being called from tryingpop.html on clicking the submit button of the popup
+function call() 
+{
+          annotat = document.forms["annotation"]["annotationvalue"].value;//annotation is the name of form in popup div
+	//and annotationvalue is the name of textarea having the annotation
+                
+
+        if($.trim(annotat)!=null && $.trim(annotat)!="")//checking if something is there in the textarea or not($.trim is used 
+		//for validating textarea) 
+          {
+            //hide the popup after pressing the submit button
+            hidepopup();//created in this file below
+            document.getElementById("erase").value="";//flushing the buffer of textarea whose id is erase
+            
+                alertSelection();
+          
+          }
+          else//if there is nothing in annotation
+          {
+            alert("annotation cannot be empty");
+          }
+          
+         
+
+}
+
+function getSelectionCharOffsetsWithin(element) {//will give the starting and ending position of selected text
+    var start = 0, end = 0;
+    var sel,range,priorRange;
+    if (typeof window.getSelection != "undefined") {//not undefined means something has been selected
+        range = window.getSelection().getRangeAt(0);//range is selected text
+        priorRange = range.cloneRange();
+        priorRange.selectNodeContents(element);
+        priorRange.setEnd(range.startContainer, range.startOffset);
+        start = priorRange.toString().length;
+        end = start + range.toString().length;
+    } else if (typeof document.selection != "undefined" && (sel = document.selection).type != "Control") {
+	//may be for compatibility to older browsers
+        range = sel.createRange();
+        priorRange = document.body.createTextRange();
+        priorRange.moveToElementText(element);
+        priorRange.setEndPoint("EndToStart", range);
+        start = priorRange.text.length;
+        end = start + range.text.length;
+    }
+    return {
+        start: start,
+        end: end,
+        range: range
+    };
+}
+
+//Being called from call function if the user has given something as annotation
+function alertSelection() {
+    
+    var val=selc.range.toString();
+    selectAndHighlightRange('maintext', selc.start,selc.end,0);
+   
+   if (window.XMLHttpRequest) {
+            // code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlhttp=new XMLHttpRequest();
+    } 
+    else 
+    { 
+            // code for IE6, IE5
+            xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    xmlhttp.onreadystatechange=function() {
+    
+    if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+        document.getElementById("txtHint").innerHTML=xmlhttp.responseText;
+     }
+ }
+ //xmlhttp.open("GET","retrieve_annotations.inc.php?text="+selc.start,true);
+ xmlhttp.open("GET","dbinsert_anno.inc.php?text="+val+"&annotation="+annotat+"&startpos="+selc.start+"&endpos="+selc.end,true);
+ xmlhttp.send();
+
+
+
+}
+    
+function foo(element) {
+    var text = document.getElementById("maintext"); //maintext is the id of div for the whole text
+     selc = getSelectionCharOffsetsWithin(text); //this function is user defined
+    if(selc.start==selc.end){//means only single click
+        
+            //following is ajax code just so that refreshing is not required
+            if (window.XMLHttpRequest) {
+            // code for IE7+, Firefox, Chrome, Opera, Safari
+                xmlhttp=new XMLHttpRequest();
+            } 
+            else 
+            { 
+                // code for IE6, IE5
+                xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+            }
+  
+            xmlhttp.onreadystatechange=function() {
+                if (xmlhttp.readyState==4 && xmlhttp.status==200) {// 4 and 200 means everything is ok
+                    document.getElementById("txtHint").innerHTML=xmlhttp.responseText; 
+		//txtHint is the name of div in annotation panel on the RHS in main.php
+                }
+            }   
+  
+	//we are sending the position of the click to retrieve_annotations.inc.php so that we can check if this click has been 
+	//made inside any highlighted text or not 
+        xmlhttp.open("GET","retrieve_annotations.inc.php?text="+selc.start,true);
+        xmlhttp.send();
+    
+
+
+    }
+    else//means some text has been selected for adding annotations
+    {
+        
+        document.getElementById("light1").style.display="block"; //light1 is the id of the pop-up div which has been created in trying_pop.html
+        document.getElementById("fade1").style.display="block";//background faded
+          
+            
+        
+    }  
+}
+
+function getTextNodesIn(node) {
+    var textNodes = [];
+    if (node.nodeType == 3) {
+        textNodes.push(node);
+    } else {
+        var children = node.childNodes;
+        for (var i = 0, len = children.length; i < len; ++i) {
+            textNodes.push.apply(textNodes, getTextNodesIn(children[i]));
+        }
+    }
+    return textNodes;
+}
+
+function setSelectionRange(el, start, end) {
+    if (document.createRange && window.getSelection) {
+        var range = document.createRange();
+        range.selectNodeContents(el);
+          var textNodes = getTextNodesIn(el);
+        var foundStart = false;
+        var charCount = 0, endCharCount;
+
+        for (var i = 0, textNode; textNode = textNodes[i++]; ) {
+            endCharCount = charCount + textNode.length;
+            if (!foundStart && start >= charCount && (start < endCharCount || (start == endCharCount && i < textNodes.length))) {
+                range.setStart(textNode, start - charCount);
+                foundStart = true;
+            }
+            if (foundStart && end <= endCharCount) {
+                range.setEnd(textNode, end - charCount);
+                break;
+            }
+            charCount = endCharCount;
+        }
+
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+    } else if (document.selection && document.body.createTextRange) {
+        var textRange = document.body.createTextRange();
+          textRange.moveToElementText(el);
+        textRange.collapse(true);
+        textRange.moveEnd("character", end);
+        textRange.moveStart("character", start);
+        textRange.select();
+    }
+}
+
+function makeEditableAndHighlight(colour) {
+    sel = window.getSelection();
+    if (sel.rangeCount && sel.getRangeAt) {
+        range = sel.getRangeAt(0);
+    }
+    document.designMode = "on";
+    if (range) {
+        sel.removeAllRanges();
+        sel.addRange(range);
+    }
+    // Use HiliteColor since some browsers apply BackColor to the whole block
+    if (!document.execCommand("HiliteColor", false, colour)) {
+        document.execCommand("BackColor", false, colour);
+    }
+    document.designMode = "off";
+}
+
+function highlight(colour) {
+    var range, sel;
+    if (window.getSelection) {
+        // IE9 and non-IE
+        try {
+            if (!document.execCommand("BackColor", false, colour)) {
+                makeEditableAndHighlight(colour);
+            }
+        } catch (ex) {
+            makeEditableAndHighlight(colour)
+        }
+    } else if (document.selection && document.selection.createRange) {
+        // IE <= 8 case
+        range = document.selection.createRange();
+        range.execCommand("BackColor", false, colour);
+    }
+}
+
+function selectAndHighlightRange(id, start, end,c) {
+
+    //alert(c);
+    var text = document.getElementById(id);
+    setSelectionRange(text, start, end);
+
+    if(c==0)
+    highlight("#FFFFCC");
+    else if(c==1)
+    highlight("#FFFF99");
+    else if(c==2)
+    highlight("#FFFF66");
+    else if(c==3)
+    highlight("#FFFF33");
+    else if(c==4)
+    highlight("#FFFF00");
+    
+}
+
+
+
+//for hiding the annotation popup and is being called from call() function(when submit is being pressed after writing something in textarea
+function hidepopup()
+{
+        
+        document.getElementById("light1").style.display="none";//light1 is id of div of popup
+        document.getElementById("fade1").style.display="none";//fade1 is id of div of background
+        document.getElementById("erase").value="";
+        //erase is id of textarea(this statement is just flushing the buffer
+}
+
+//remove the comment if the button is added beside the watch button
+function annotation_button(object)
+{
+    
+    document.getElementById("light1").style.display="block";
+     document.getElementById("fade1").style.display="block";
+
+     add_annotation_buttonid=object.name;
+     alert(add_annotation_buttonid);
+
+}
+
+
+
+
+
+
+

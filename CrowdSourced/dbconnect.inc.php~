@@ -1,0 +1,18 @@
+<?php
+
+//this connects to the server database
+
+$conn_error_msg="Error in connecting to Database!";
+
+$mysql_server='localhost';
+$mysql_user='root';
+$mysql_pass='root';
+$mysql_db='intern';
+
+$link=mysqli_connect($mysql_server,$mysql_user,$mysql_pass,$mysql_db);//connecting to the database
+
+if(!$link){
+	die($conn_error_msg);
+}
+
+?>

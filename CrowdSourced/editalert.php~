@@ -1,0 +1,16 @@
+<?php
+
+ if(!isset($_SESSION['emaild']))
+ {
+ 	echo 'onclick="return alertnotsigned(this);"';
+
+ }
+ else
+ {
+ 	echo 'onclick="edit(this);"';
+ }
+ 
+ 
+
+
+?>

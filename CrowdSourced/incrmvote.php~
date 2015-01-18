@@ -1,0 +1,58 @@
+<?php
+require 'dbconnect.inc.php';
+$id=$_POST['hide'];
+$user="abhi";
+$result=mysqli_query($link,"select *from votes where id='$id' and user='$user'") or die($conn_error_msg);
+$count=mysqli_num_rows($result);
+if($count==0){
+	mysqli_query($link,"insert into votes(id,user) values('$id','$user')");
+}
+
+/*while($row=mysqli_fetch_array($result))
+{
+	if($row['votetype']!=0 && $row['votetype']!=1)
+	{
+		mysqli_query($link,"insert into votes(id,user)
+		values('$id','$user')") or die("could not insert");
+
+	}	
+} */
+
+if($_POST['submit']=='up')
+{
+	$res=mysqli_query($link,"update votes set votetype=TRUE where id='$id' and (votetype=0 or votetype=5) and user='$user'");
+	$effected=mysqli_affected_rows($link);
+	
+	if($effected)
+	{	
+		mysqli_query($link,"update content set votes=votes+1 where id='$id'");
+	}
+	else
+	{
+		mysqli_close($link);
+		header('Location: main.php');
+		die();
+	}
+}
+elseif($_POST['submit']=='down')
+{
+	$res=mysqli_query($link,"update votes set votetype=FALSE where id='$id' and (votetype=1 or votetype=5) and user='$user'");
+	$effected=mysqli_affected_rows($link);
+	
+	if($effected)
+	{	
+		mysqli_query($link,"update content set votes=votes-1 where id='$id'");
+		
+	}
+	else
+	{
+		mysqli_close($link);
+		header('Location: main.php');
+		die();
+	}
+}
+
+mysqli_close($link);
+header('Location: main.php');	
+die();
+?>

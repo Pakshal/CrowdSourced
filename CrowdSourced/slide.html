@@ -1,0 +1,57 @@
+<!-- contains all the images for the slideshow-->
+
+<div id="slideshow">
+   <div>
+     <img src="static/first.jpg"  width="680px" height="400px">
+   </div>
+ <div>
+     <img src="static/second.jpg"  width="680px" height="400px">
+   </div>
+   <div>
+     <img src="static/third.jpg"  width="680px" height="400px">
+   </div>
+   <div>
+     <img src="static/fourth.jpg"  width="680px" height="400px">
+   </div>
+   <div>
+     <img src="static/fifth.jpg"  width="680px" height="400px">
+   </div>
+   <div>
+     <img src="static/sixth.jpg"  width="680px" height="400px">
+   </div>
+   <div>
+     <img src="static/seventh.jpg"  width="680px" height="400px">
+   </div>
+   
+   
+</div>
+
+
+<style>
+#slideshow { 
+   
+   float:left;
+   
+}
+
+
+#slideshow > div { 
+    position: absolute; 
+    
+}
+</style>
+
+	
+<script>
+$("#slideshow > div:gt(0)").hide();
+
+setInterval(function() { 
+  $('#slideshow > div:first')
+    .fadeOut(3000)
+    .next()
+    .fadeIn(3000)
+    .end()
+    .appendTo('#slideshow');
+},  4000);
+
+</script>

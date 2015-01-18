@@ -1,0 +1,23 @@
+create database intern;
+use intern;
+
+create table content (id int auto_increment, text varchar(5000), annotation varchar(1000), votes int default 0,date datetime, spos int, epos int, user varchar(100),primary key(id));
+
+create table credential (firstname varchar(25), lastname varchar(25), emailid varchar(100), profession varchar(100), password varchar(100), status bool, Ekey varchar(1000),points double default 0, primary key(emailid));
+
+create table votes (id int, user varchar(100), votetype bool default 5, primary key(id,user,votetype), foreign key(id) references content(id), foreign key(user) references credential(emailid));
+
+create table watchers (fid int, emailid varchar(100), primary key(fid,emailid), foreign key(fid) references content(id), foreign key(emailid) references credential(emailid));
+
+create table edit_log(annoid int,anno varchar(1000),user varchar(100),datetime timestamp default current_timestamp,votes int, foreign key (annoid) references content(id));
+
+;
+
+
+CREATE TRIGGER `insert_edit_log` AFTER INSERT ON `content` FOR EACH ROW insert into edit_log(annoid,anno,votes,user) values (new.id,new.annotation,new.votes,new.user);
+
+
+ CREATE TRIGGER `update_edit_log` AFTER UPDATE ON `content` FOR EACH ROW insert into edit_log(annoid,anno,votes,user) values (new.id,new.annotation,new.votes,new.user);
+
+
+
